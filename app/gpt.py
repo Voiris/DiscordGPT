@@ -47,7 +47,7 @@ class ChatGPT:
         return channel in self.sessions and _id in self.sessions[channel]
 
     def stop_session(self, channel, _id):
-        if self.has_session():
+        if self.has_session(channel, _id):
             self.sessions[channel].pop(_id)
             return "Сессия удалена"
         else:
