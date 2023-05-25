@@ -8,31 +8,30 @@ class ChatGPT:
 
     # Функция для взаимодействия с ChatGPT
     def handle(self, channel, _id, message):
-        if channel in self.sessions:
-            if _id in self.sessions[channel]:
-                headers = {
-                    'Content-Type': 'application/json',
-                    'Authorization': f'Bearer {self.api_key}'
-                }
+        if self.has_session(channel, _id):
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {self.api_key}'
+            }
 
-                self.sessions[channel][_id].append({'role': 'user', 'content': message})
+            self.sessions[channel][_id].append({'role': 'user', 'content': message})
 
-                data = {
-                    'model': 'gpt-3.5-turbo',
-                    'messages': self.sessions[channel][_id]
-                }
+            data = {
+                'model': 'gpt-3.5-turbo',
+                'messages': self.sessions[channel][_id]
+            }
 
-                response = requests.post(
-                    'https://api.openai.com/v1/chat/completions', headers=headers, json=data)
+            response = requests.post(
+                'https://api.openai.com/v1/chat/completions', headers=headers, json=data)
 
-                if response.status_code == 200:
-                    data = response.json()
-                    if 'choices' in data and len(data['choices']) > 0:
-                        answer = data['choices'][0]['message']['content'].strip()
-                        self.sessions[channel][_id].append({'role': 'assistant', 'content': answer})
-                        return answer
-                else:
-                    return "Произошла ошибка при взаимодействии с ChatGPT."
+            if response.status_code == 200:
+                data = response.json()
+                if 'choices' in data and len(data['choices']) > 0:
+                    answer = data['choices'][0]['message']['content'].strip()
+                    self.sessions[channel][_id].append({'role': 'assistant', 'content': answer})
+                    return answer
+            else:
+                return "Произошла ошибка при взаимодействии с ChatGPT."
 
     def start_session(self, channel, _id):
         if channel not in self.sessions:
